@@ -3,10 +3,28 @@ from splinter import Browser
 from bs4 import BeautifulSoup as soup
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
+import datetime as dt
 
-#set up splinter
-executable_path = {'executable_path': ChromeDriverManager().install()}
-browser = Browser('chrome', **executable_path, headless=False)
+def scrape_all():
+    #initiate headless driver for deployment    
+    executable_path = {'executable_path': ChromeDriverManager().install()}
+    browser = Browser('chrome', **executable_path, headless=True)
+    
+    #set variables
+    news_title, news_paragraph = mars_news(browser)
+
+    #run all scraping functions and store results in dictionary
+    data = {
+            "news_title": news_title,
+            "news_paragraph": news_paragraph,
+            "featured_image": featured_image(browser),
+            "facts": mars_facts(),
+            "last_modified": dt.datetime.now()
+    }
+
+   #stop webdriver and return data
+    browser.quit()
+    return data
 
 def mars_news(browser):
     
@@ -63,9 +81,9 @@ def featured_image(browser):
     
     return img_url
 
+# ## Mars facts
 def mars_facts():
-
-    # ## Mars facts
+    
     try:
         #use read_html to scrape the facts table into a dataframe
         df = pd.read_html('https://galaxyfacts-mars.com/')[0]
@@ -78,8 +96,8 @@ def mars_facts():
     df.set_index('description', inplace=True)
 
     #convert dataframe into HTML format, add bootstrap
-    return df.to_html()    
+    return df.to_html()        
 
-#quit automated browser
-browser.quit()
-
+if __name__=="__main__":
+    #if running as script, print scraped data
+    print(scrape_all())
