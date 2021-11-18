@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for
 from flask_pymongo import PyMongo
 import scraping
+
 app = Flask(__name__)
 
 #Use flask_pymongo to setup mongo connection
@@ -11,7 +12,7 @@ mongo = PyMongo(app)
 @app.route("/")
 def index():
     mars = mongo.db.mars.find_one()
-    return render_template("index.html, mars=mars")
+    return render_template("index.html", mars=mars)
 
 #define next route
 @app.route("/scrape")
